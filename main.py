@@ -6,6 +6,11 @@ import speech_recognition as sr
 import pyautogui
 import webbrowser as wb
 import wikipedia
+import openai 
+import time
+
+import random
+
 engine = pyttsx3.init()
 
 # This function is responsible give audio to the text
@@ -28,12 +33,20 @@ def change_voice(voice):
     
 # This function will give you tell you about the time 
 def time(Region,City):
-    response = requests.get('https://timeapi.io/api/Time/current/zone?timeZone={0}/{1}'.format(Region,City))
-    python_data= json.loads(response.text)
-    time = python_data.get('time')
-    date = python_data.get('dateTime')
-    audio = "The date of {0} is{1} and time is {2}".format(City,date,time)
-    give_audio(audio)
+    if(Region is None ):
+      response = requests.get('https://timeapi.io/api/Time/current/zone?timeZone={0}/{1}'.format("Asia","Calcutta"))
+      python_data= json.loads(response.text)
+      time = python_data.get('time')
+      date = python_data.get('dateTime')
+      audio = "The date of {0} is{1} and time is {2}".format(City,date,time)
+      give_audio(audio)
+    else:
+      response = requests.get('https://timeapi.io/api/Time/current/zone?timeZone={0}/{1}'.format(Region,City))
+      python_data= json.loads(response.text)
+      time = python_data.get('time')
+      date = python_data.get('dateTime')
+      audio = "The date of {0} is{1} and time is {2}".format(City,date,time)
+      give_audio(audio)
 
 
 def greeting():
@@ -46,13 +59,23 @@ def greeting():
     give_audio("Good Evening Sir")
   else:
     give_audio("Good Night Sir")
+    
+    
 
-""" def google_search():
-  generator = pipeline('text-generation', model='EleutherAI/gpt-neo-1.3B')
-  text =takeCommandMic()
-  result = generator(text, max_length=100, do_sample=True, temperature=0.9)
-  print(result[0]['generated_text'])
-  give_audio(result[0]['generated_text']) """
+def gpt3(query):
+  openai.api_key = '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'
+  response = openai.Completion.create(
+    engine = "davinci-instruct-beta",
+    prompt = query,
+    temperature =0.1,
+    max_token = 1000,
+    top_p =1,
+    frequency_penalty =0,
+    presence_penalty =0
+  )
+  content = response.choices[0].text.split('.')
+  print(content)
+  return response.choices[0].text
   
   
 def wishme(name):
@@ -83,7 +106,7 @@ def takeCommandMic():
 def sendwhatappmsg(ph_no,msg):
   Message = msg
   wb.open('https://web.whatsapp.com/send?phone='+ph_no+'&text='+msg)
-  sleep(10)
+  time.sleep(10)
   pyautogui.press('enter')
 
 
@@ -123,7 +146,7 @@ if __name__ == "__main__":
                 give_audio('message to send the message')
               except Exception as e:
                 print(e)
-                give_audio("unable to esnd the message")
+                give_audio("unable to send the message")
                 
             if 'wikipedia' in query:
               give_audio("searching on wikipeida...")
@@ -132,11 +155,11 @@ if __name__ == "__main__":
               print(result)
               give_audio(result)
               
-            """ if 'google' in query:
-              google_search() """
-              
             if 'stop' in query:
               break
+            else:
+              query = takeCommandMic()
+              gpt3(query)
             
       
       
