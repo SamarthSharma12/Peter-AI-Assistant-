@@ -13,9 +13,10 @@ from newsapi.newsapi_client import NewsApiClient
 import random
 import clipboard
 import os # Not working till now need to be implemented
-
+import cv2
+import pyjokes
+import time as tt
 engine = pyttsx3.init()
-
 # This function is responsible give audio to the text
 def give_audio(audio):
   engine.say(audio)
@@ -121,6 +122,41 @@ def texttospeech():
   text = clipboard.paste()
   print(text)
   give_audio(text)
+  
+def capturepic():
+  cam = cv2.VideoCapture(0)
+  cv2.namedWindow("Python Webcam Screenshot App")
+  
+  img_counter =0
+  while True:
+    ret,frame  = cam.read()
+    if not ret:
+      print("Failed to grab frame")
+      break
+    cv2.imshow("test",frame)
+    k = cv2.waitKey(1)
+    if k%256 == 27:
+      print("Escape hit closing the app")
+      break
+    elif k%256 == 32:
+      img_name = "opencv_frame_{}.png".format(img_counter)
+      cv2.imwrite(img_name,frame)
+      print("screenshot taken")
+      img_counter+=1
+  cam.release()
+  cam.destroyAllWindows()
+      
+      
+  cam.release()
+  cam.destroyAllWindows()
+  
+def screenshots():
+  name_img = tt.time()
+  name_img =  'C:\\Users\\LENOVO\\Desktop\\Jarvis\\sam\\screenshots\\{}.png'.format(name_img)
+  img = pyautogui.screenshot(name_img)
+  img.show()
+  
+
 
 if __name__ == "__main__":
     change_voice(1)
@@ -190,14 +226,23 @@ if __name__ == "__main__":
         news(new)
       elif 'read' in query:
         texttospeech()
+      elif "picture" in query:
+        capturepic()
+      elif "document" in query:
+        codepath = 'explorer C://{}'.format(query.replace('Open',''))
+        os.system(codepath)
+      elif "joke" in query:
+        give_audio(pyjokes.get_joke())
+        
+      elif "screenshot" in query:
+        screenshots()
       else:
         gpt3(query)
         break
       
-      
-     """ elif 'open code' in query:
-        codepath = "C:\Users\LENOVO\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\V"
-        os.startfile(codepath)"""
+    #elif 'open code' in query:
+     #   codepath = "C:\Users\LENOVO\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\V"
+     #   os.startfile(codepath)"""
       
         
 # http://api.openweathermap.org/data/2.5/weather?q=Agra&units=imperial&appid=dc1bd9d9718ec49bb299a339416ac853
