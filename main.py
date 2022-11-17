@@ -9,8 +9,10 @@ import wikipedia
 import openai 
 from time import sleep
 import pywhatkit # for youtube video
-
+from newsapi.newsapi_client import NewsApiClient
 import random
+import clipboard
+import os # Not working till now need to be implemented
 
 engine = pyttsx3.init()
 
@@ -57,7 +59,7 @@ def greet():
   give_audio("I hope you are having a great time")
 
 def gpt3(s):
-  openai.api_key = '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'
+  openai.api_key = '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'
   response = openai.Completion.create(
     model="text-curie-001",
     prompt=s,
@@ -107,7 +109,18 @@ def searchgoogle():
   search = takeCommandMic()
   wb.open('https://www.google.com/search?q={}'.format(search ))
   
-
+def news(new):
+  news_api = NewsApiClient(api_key = '3b048370cf9e498d98e27301a2ea9f0b')
+  data = news_api.get_top_headlines(q = new,language = 'en',page_size =5)
+  newsdata = data['articles']
+  for x,y in enumerate(newsdata):
+    print(f'{x}{y["description"]}')
+    give_audio(f'{x}{y["description"]}')
+  give_audio("That's it for now I'll update you in some time")
+def texttospeech():
+  text = clipboard.paste()
+  print(text)
+  give_audio(text)
 
 if __name__ == "__main__":
     change_voice(1)
@@ -117,7 +130,7 @@ if __name__ == "__main__":
     greet()
     while True:
       query = takeCommandMic().lower()
-      if 'current' and 'time' in query:
+      if 'current' in query:
         time('Asia','Calcutta')
       elif 'time' in query :
         give_audio("Say Region")
@@ -157,13 +170,35 @@ if __name__ == "__main__":
         topic = takeCommandMic()
         pywhatkit.playonyt(topic)
       elif 'weather' in query:
-        city = query.replace("weather","")
-        url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid=dc1bd9d9718ec49bb299a339416ac853'.format(city)
+        city = query.replace("what is the weather of","")
+        url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&units=imperial&appid=dc1bd9d9718ec49bb299a339416ac853'
+        res = requests.get(url)
+        data = res.json()
+        weather = data['weather'][0]['main']
+        temp = data['main']['temp']
+        temp = round((temp-32)*5/9)
+        des = data['weather'][0]['description']
+        print(weather)
+        print(temp)
+        print(des)
+        give_audio(f'weather in {city} city is like')
+        give_audio("Temperature:{} degree celcius".format(temp))
+        give_audio("weather is {}".format(des))
         
-  
+      elif 'news' in query:
+        new = query.replace("what's the news about","")
+        news(new)
+      elif 'read' in query:
+        texttospeech()
       else:
         gpt3(query)
         break
+      
+      
+     """ elif 'open code' in query:
+        codepath = "C:\Users\LENOVO\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\V"
+        os.startfile(codepath)"""
+      
         
 # http://api.openweathermap.org/data/2.5/weather?q=Agra&units=imperial&appid=dc1bd9d9718ec49bb299a339416ac853
       
