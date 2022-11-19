@@ -19,6 +19,11 @@ import time as tt
 import json
 import spotipy
 import webbrowser
+import psutil 
+from geolocation import*
+import nltk
+
+
 engine = pyttsx3.init()
 # This function is responsible give audio to the text
 def give_audio(audio):
@@ -97,7 +102,7 @@ def spotify():
             print("Enter valid choice.")
 
 def gpt3(s):
-  openai.api_key = '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'
+  openai.api_key = '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'
   response = openai.Completion.create(
     model="text-curie-001",
     prompt=s,
@@ -192,7 +197,12 @@ def screenshots():
   name_img =  'C:\\Users\\LENOVO\\Desktop\\Jarvis\\sam\\screenshots\\{}.png'.format(name_img)
   img = pyautogui.screenshot(name_img)
   img.show()
-  
+def cpu():
+  usage = str(psutil.cpu_percent())
+  give_audio('CPU is at'+usage)
+  battery = psutil.sensors_battery()
+  give_audio("Battery is at")
+  give_audio(battery.percent)
 
 
 if __name__ == "__main__":
@@ -241,6 +251,7 @@ if __name__ == "__main__":
       elif 'youtube' in query:
         give_audio("what should I search for on youtube?")
         topic = takeCommandMic()
+        
         pywhatkit.playonyt(topic)
       elif 'weather' in query:
         city = query.replace("what is the weather of","")
@@ -276,21 +287,12 @@ if __name__ == "__main__":
         
       elif "song" in query:
         spotify()
+      elif "location" in query:
+        call()
+      elif "cpu" in query:
+        cpu()
       else:
         gpt3(query)
         break
-      
-    #elif 'open code' in query:
-     #   codepath = "C:\Users\LENOVO\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\V"
-     #   os.startfile(codepath)"""
-      
-        
-# http://api.openweathermap.org/data/2.5/weather?q=Agra&units=imperial&appid=dc1bd9d9718ec49bb299a339416ac853
-      
-      
-
-#while True:
-  #choice = int(input("Enter 1 if you want it in Male voice\nEnter 2 if you want it Female voice\n"))
-  #change_voice(choice)
-#wishme("Samarth")
-#greeting()
+# takeCommandMic == "Hey jarvis what is the date today"
+  
